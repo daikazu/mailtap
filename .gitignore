@@ -1,0 +1,12 @@
+.superpowers/
+.idea/
+agents/
+docs/superfpowers/
+build/bin
+node_modules
+frontend/dist
+.remember/
+/build/windows/.DS_Store
+/build/.DS_Store
+/build/.DS_Store
+/.DS_Store

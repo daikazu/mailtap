@@ -1,0 +1,633 @@
+/* MailTap — Theme System */
+
+:root {
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --radius: 4px;
+}
+
+/* ─── Dark Theme (default) ─────────────────────────────── */
+
+:root, [data-theme="dark"] {
+  --bg: #131520;
+  --bg-surface: #181a28;
+  --bg-elevated: #1e2132;
+  --accent: #00ffc8;
+  --accent-dim: rgba(0, 255, 200, 0.12);
+  --text: #dddde6;
+  --text-dim: #9294ab;
+  --text-bright: #f2f2f8;
+  --border: #282a3e;
+  --border-active: #00ffc8;
+  --danger: #ff5577;
+  --warn: #ffbb33;
+  --good: #00ff88;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrollbar-hover: #3a3c52;
+}
+
+/* ─── Light Theme ──────────────────────────────────────── */
+
+[data-theme="light"] {
+  --bg: #f4f5f7;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --accent: #00997a;
+  --accent-dim: rgba(0, 153, 122, 0.10);
+  --text: #2c2c34;
+  --text-dim: #6b6d80;
+  --text-bright: #1a1a22;
+  --border: #d8dae0;
+  --border-active: #00997a;
+  --danger: #d93050;
+  --warn: #c88400;
+  --good: #0a8a50;
+  --overlay: rgba(0, 0, 0, 0.25);
+  --shadow: rgba(0, 0, 0, 0.12);
+  --scrollbar-hover: #b0b2be;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}
+
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── App Shell ─────────────────────────────────────────── */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+}
+
+/* ─── Title Bar ─────────────────────────────────────────── */
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  padding: 0 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  --wails-draggable: drag;
+}
+
+.titlebar .logo {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.titlebar .logo span {
+  color: var(--text-dim);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+
+.titlebar .status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.titlebar .status .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 6px var(--good);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.titlebar .cmd {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ─── Main Layout ───────────────────────────────────────── */
+
+.main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ─── List Panel (Left Sidebar) ─────────────────────────── */
+
+.list-panel {
+  width: 320px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.list-toolbar .count {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.search {
+  flex: 1;
+  width: 100%;
+  user-select: text;
+  -webkit-user-select: text;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search::placeholder {
+  color: var(--text-dim);
+}
+
+.search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+/* ─── Email List ────────────────────────────────────────── */
+
+.email-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.email-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.email-item:hover {
+  background: var(--bg-elevated);
+}
+
+.email-item.active {
+  background: var(--accent-dim);
+  border-left-color: var(--accent);
+}
+
+.email-item.unread {
+  border-left-color: var(--accent);
+}
+
+.email-item.unread .email-subject {
+  color: var(--text-bright);
+  font-weight: 600;
+}
+
+.email-subject {
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email-from {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email-preview {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.email-time {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+/* ─── Badges ────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.badge.attachment {
+  background: rgba(0, 255, 200, 0.08);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+/* ─── Detail Panel ──────────────────────────────────────── */
+
+.detail-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg);
+}
+
+.detail-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.detail-header .subject {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin-bottom: 6px;
+}
+
+.detail-header .meta {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.detail-header .meta span {
+  color: var(--text-dim);
+}
+
+/* ─── Tabs ──────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+
+.tab {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-mono);
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab .shortcut {
+  font-size: 9px;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
+  margin-left: 6px;
+  opacity: 0.7;
+}
+
+.tab.active .shortcut {
+  color: var(--accent);
+  border-color: rgba(0, 255, 200, 0.25);
+  opacity: 1;
+}
+
+/* ─── Preview Area ──────────────────────────────────────── */
+
+.preview {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.preview *, .preview *::before, .preview *::after {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.html-preview {
+  background: #ffffff;
+  color: #1a1a1a;
+  border-radius: var(--radius);
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* ─── Status Bar ────────────────────────────────────────── */
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.statusbar .item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusbar .item.clickable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.statusbar .item.clickable:hover {
+  color: var(--accent);
+}
+
+.statusbar .item.good {
+  color: var(--good);
+}
+
+.statusbar .item.warn {
+  color: var(--warn);
+}
+
+.statusbar .item.bad {
+  color: var(--danger);
+}
+
+.statusbar .spacer {
+  flex: 1;
+}
+
+/* ─── Command Palette ───────────────────────────────────── */
+
+.command-palette-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 20vh;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.command-palette {
+  width: 480px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 16px 48px var(--shadow);
+}
+
+.command-palette input {
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-bright);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+}
+
+.command-palette input::placeholder {
+  color: var(--text-dim);
+}
+
+.command-palette .results {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.command-palette .result {
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text);
+  transition: background 0.1s;
+}
+
+.command-palette .result:hover,
+.command-palette .result.active {
+  background: var(--accent-dim);
+}
+
+.command-palette .result .label {
+  color: var(--text);
+}
+
+.command-palette .result .hotkey {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+/* ─── Hotkey Sheet ──────────────────────────────────────── */
+
+.hotkey-sheet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 32px;
+  z-index: 100;
+  box-shadow: 0 16px 48px var(--shadow);
+  min-width: 360px;
+}
+
+.hotkey-sheet h4 {
+  color: var(--accent);
+  font-size: 14px;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+.hotkey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.hotkey-row .action {
+  color: var(--text);
+}
+
+/* ─── kbd (key hint) ────────────────────────────────────── */
+
+kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+/* ─── Buttons ───────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn.danger {
+  border-color: rgba(255, 68, 102, 0.3);
+  color: var(--danger);
+}
+
+.btn.danger:hover {
+  border-color: var(--danger);
+  background: rgba(255, 68, 102, 0.1);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+/* ─── Selection ─────────────────────────────────────────── */
+
+::selection {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
