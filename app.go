@@ -93,11 +93,13 @@ func (a *App) handleEmail(email *models.Email) {
 
 	if cfg.AutoCopyCodes {
 		if code, ok := otp.Detect(email); ok {
-			if err := wailsruntime.ClipboardSetText(a.ctx, code); err != nil {
-				log.Printf("Failed to copy OTP code to clipboard: %v", err)
-			} else {
-				go notify.Send("MailTap", fmt.Sprintf("Code %s copied to clipboard", code))
-			}
+			go func() {
+				if err := wailsruntime.ClipboardSetText(a.ctx, code); err != nil {
+					log.Printf("Failed to copy OTP code to clipboard: %v", err)
+				} else {
+					notify.Send("MailTap", fmt.Sprintf("Code %s copied to clipboard", code))
+				}
+			}()
 		}
 	}
 }
