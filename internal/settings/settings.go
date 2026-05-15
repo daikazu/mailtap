@@ -11,6 +11,7 @@ type Settings struct {
 	Port          string `json:"port"`
 	Notifications bool   `json:"notifications"`
 	Theme         string `json:"theme"`
+	AutoCopyCodes bool   `json:"autoCopyCodes"`
 }
 
 var (
@@ -28,6 +29,7 @@ func Default() Settings {
 		Port:          "2525",
 		Notifications: true,
 		Theme:         "system",
+		AutoCopyCodes: true,
 	}
 }
 
