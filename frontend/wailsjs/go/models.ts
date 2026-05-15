@@ -127,6 +127,7 @@ export namespace settings {
 	    port: string;
 	    notifications: boolean;
 	    theme: string;
+	    autoCopyCodes: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -137,6 +138,7 @@ export namespace settings {
 	        this.port = source["port"];
 	        this.notifications = source["notifications"];
 	        this.theme = source["theme"];
+	        this.autoCopyCodes = source["autoCopyCodes"];
 	    }
 	}
 
