@@ -5,6 +5,7 @@
 
   let port = '';
   let notifications = true;
+  let autoCopyCodes = true;
   let theme = 'system';
   let needsRestart = false;
   let saved = false;
@@ -13,6 +14,7 @@
     const s = await api.getSettings();
     port = s.port;
     notifications = s.notifications;
+    autoCopyCodes = s.autoCopyCodes;
     theme = s.theme;
   });
 
@@ -20,7 +22,7 @@
     const current = await api.getSettings();
     needsRestart = port !== current.port;
 
-    await api.saveSettings({ port, notifications, theme });
+    await api.saveSettings({ port, notifications, autoCopyCodes, theme });
 
     // Apply theme immediately
     themePref.set(theme);
@@ -69,6 +71,17 @@
           class="toggle"
           class:active={notifications}
           on:click={() => notifications = !notifications}
+        >
+          <span class="toggle-knob"></span>
+        </button>
+      </label>
+
+      <label class="setting-row">
+        <span class="setting-label">Auto-copy detected codes</span>
+        <button
+          class="toggle"
+          class:active={autoCopyCodes}
+          on:click={() => autoCopyCodes = !autoCopyCodes}
         >
           <span class="toggle-knob"></span>
         </button>

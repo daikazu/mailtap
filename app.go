@@ -11,6 +11,7 @@ import (
 
 	"mailtap/internal/models"
 	"mailtap/internal/notify"
+	"mailtap/internal/otp"
 	"mailtap/internal/settings"
 	"mailtap/internal/smtp"
 	"mailtap/internal/storage"
@@ -84,8 +85,22 @@ func (a *App) handleEmail(email *models.Email) {
 
 	wailsruntime.EventsEmit(a.ctx, "mailtap:email-received", email.ToSummary())
 
-	if settings.Load().Notifications {
+	cfg := settings.Load()
+
+	if cfg.Notifications {
 		go notify.Send("MailTap", fmt.Sprintf("From: %s\n%s", email.From, email.Subject))
+	}
+
+	if cfg.AutoCopyCodes {
+		if code, ok := otp.Detect(email); ok {
+			go func() {
+				if err := wailsruntime.ClipboardSetText(a.ctx, code); err != nil {
+					log.Printf("Failed to copy OTP code to clipboard: %v", err)
+				} else {
+					notify.Send("MailTap", fmt.Sprintf("Code %s copied to clipboard", code))
+				}
+			}()
+		}
 	}
 }
 
