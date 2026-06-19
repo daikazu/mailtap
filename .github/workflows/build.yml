@@ -48,6 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_REF_NAME#v}"
+          version="${version//\//-}"  # slugify slashes so branch dispatches (ci/foo) yield a valid filename
           app="$(find build/bin -maxdepth 1 -name '*.app' | head -1)"
           mkdir -p dmg
           cp -R "$app" dmg/
@@ -71,7 +72,7 @@ jobs:
         if: matrix.platform == 'windows'
         shell: pwsh
         run: |
-          $version = $env:GITHUB_REF_NAME -replace '^v',''
+          $version = $env:GITHUB_REF_NAME -replace '^v','' -replace '[\\/]','-'
           Copy-Item build/bin/mailtap.exe "mailtap-$version-windows-amd64.exe"
 
       - name: Upload Windows artifact
