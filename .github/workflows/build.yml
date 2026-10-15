@@ -1,4 +1,4 @@
-name: Build
+name: Release
 
 on:
   push:
@@ -9,14 +9,13 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-latest
             platform: darwin
-            arch: universal
           - os: windows-latest
             platform: windows
-            arch: amd64
 
     runs-on: ${{ matrix.os }}
 
@@ -26,37 +25,62 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version-file: 'go.mod'
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
+      # Pinned to the wails/v2 version in go.mod so the CLI and library stay in sync.
       - name: Install Wails
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
 
+      # --- macOS: build universal .app, then package a .dmg on this runner so the
+      # executable bit / symlinks inside the bundle survive (upload-artifact strips them). ---
       - name: Build (macOS)
         if: matrix.platform == 'darwin'
         run: wails build -platform darwin/universal
 
-      - name: Build (Windows)
-        if: matrix.platform == 'windows'
-        run: wails build -platform windows/amd64
+      - name: Package .dmg (macOS)
+        if: matrix.platform == 'darwin'
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          version="${version//\//-}"  # slugify slashes so branch dispatches (ci/foo) yield a valid filename
+          app="$(find build/bin -maxdepth 1 -name '*.app' | head -1)"
+          mkdir -p dmg
+          cp -R "$app" dmg/
+          ln -s /Applications dmg/Applications
+          hdiutil create -volname "MailTap" -srcfolder dmg -ov -format UDZO \
+            "MailTap-${version}-universal.dmg"
 
       - name: Upload macOS artifact
         if: matrix.platform == 'darwin'
         uses: actions/upload-artifact@v4
         with:
-          name: mailtap-macos
-          path: build/bin/*.app
+          name: dist-macos
+          path: '*.dmg'
+
+      # --- Windows: build the portable .exe and ship it as a direct download. ---
+      - name: Build (Windows)
+        if: matrix.platform == 'windows'
+        run: wails build -platform windows/amd64
+
+      - name: Rename .exe (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME -replace '^v','' -replace '[\\/]','-'
+          Copy-Item build/bin/mailtap.exe "mailtap-$version-windows-amd64.exe"
 
       - name: Upload Windows artifact
         if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v4
         with:
-          name: mailtap-windows
-          path: build/bin/*.exe
+          name: dist-windows
+          path: '*.exe'
 
   release:
     needs: build
@@ -72,16 +96,8 @@ jobs:
         with:
           path: artifacts
 
-      - name: Zip macOS app
-        run: cd artifacts/mailtap-macos && zip -r ../../mailtap-macos.zip . && cd ../..
-
-      - name: Zip Windows app
-        run: cd artifacts/mailtap-windows && zip -r ../../mailtap-windows.zip . && cd ../..
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            mailtap-macos.zip
-            mailtap-windows.zip
+          files: artifacts/**/*
           generate_release_notes: true
